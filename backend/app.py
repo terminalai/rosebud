@@ -13,8 +13,7 @@ r = sr.Recognizer()
 
 @app.route("/verifyCode", methods=["POST"])
 def verifyCode():
-    return request.get("code") == "140123"
-
+    return request.get("code") == 140123
 
 @app.route("/processAudio", methods=["POST"])
 def processAudio():
