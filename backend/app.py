@@ -18,6 +18,7 @@ def main():
 
 @app.route("/verifyCode", methods=["GET"])
 def verifyCode():
+    print('received code')
     res = jsonify(dict(response = request.args.get("code", 123456, int) == 140123))
     res.headers.add('Access-Control-Allow-Origin','*')
     return res
@@ -35,7 +36,6 @@ def processAudio():
     x.export("temp.wav", format='wav')
 
     r = sr.Recognizer()
-    #kw_model = KeyBERT()
 
     with sr.AudioFile("temp.wav") as source:
         # listen for the data (load audio to memory)
@@ -45,11 +45,19 @@ def processAudio():
     
     os.remove("temp.ogg")
 
+    print(text)
+
     # text is still in memory :)
 
-    #keywords = [i[0] for i in kw_model.extract_keywords(text)]
+    kw_model = KeyBERT()
+    keywords = [i[0] for i in kw_model.extract_keywords(text)]
 
-    #text = process_keywords(keywords)
+    print(keywords)
+
+    text = process_keywords(keywords)
+
+
+    print(text)
 
 
     myobj = gTTS(text=text, lang="en", slow=False)
@@ -72,4 +80,4 @@ def processAudio():
 
 
 if __name__ == '__main__':
-    app.run(host="127.0.0.1", port=5000, debug=True)
+    app.run(host="127.0.0.1", port=5000)
