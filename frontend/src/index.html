@@ -31,6 +31,7 @@
     <title>Rosebud</title>
     <script>
         const URL = "http://127.0.0.1:5000"; // 192.168.1.102
+        let CONNECTED = false;
         // const URL = "http://128.199.83.64:5000"; // 192.168.1.102
     </script>
 </head>
@@ -86,6 +87,7 @@
                             .then(data => {
                             const failure = document.getElementById('connection-failure');
                             const success = document.getElementById('connection-success');
+                            CONNECTED = data;
                             failure.hidden = data.response;
                             success.hidden = !data.response;
                             }).catch((error) => {
@@ -94,6 +96,7 @@
                             const success = document.getElementById('connection-success');
                             failure.hidden = false;
                             success.hidden = true;
+                            CONNECTED = false;
                             console.log('Error verifying server');
                         });
                     });
@@ -200,10 +203,41 @@
                             Transcript
                         </p>
                     <div class="mx-auto align-middle justify-center flex col-span-12 mt-10 mx-auto">
-                            <textarea id="transcript" disabled class="text-4xl col-span-12 bg-slate-200 p-5 border-slate-800 mx-auto " rows="4" cols="30">
+                            <textarea disabled id="transcript" disabled class="text-4xl col-span-12 bg-slate-200 p-5 border-slate-800 mx-auto " rows="4" cols="30">
 Transcript goes here.
                             </textarea>
                     </div>
+                    <script>
+                        setInterval(() => {
+                            if (CONNECTED) {
+                                fetch(`${URL}/transcript`, {
+                                    method: 'GET'
+                                }).then(res => res.json())
+                                    .then((res) => {
+                                        if (res) {
+                                            document.getElementById('transcript-area').innerHTML = res;
+
+                                        }
+                                        });
+                                fetch(`${URL}/transcript`, {
+                                    method: 'GET'
+                                }).then(res => res.json())
+                                    .then((keywords) => {
+                                        if (keywords) {
+                                            keywordList = document.getElementById('keywords');
+                                            for (keyword of keywords) {
+                                                const span = document.createElement("span");
+                                                span.classList.addAll(['col-span-3','bg-slate-200','rounded-3xl','p-5','m-2']);
+                                                const p = document.createElement("p");
+                                                p.innerHTML = keyword;
+                                                p.classList.add('text-5xl');
+                                                span.childNodes.add(p);
+                                            }
+                                        }
+                                    });
+                            }
+                        }, 5 * 1000);
+                    </script>
                 </div>
             </div>
             <hr class="w-[95%] h-3 my-4 bg-gray-200 rounded my-10 mx-auto">
