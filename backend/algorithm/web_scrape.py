@@ -10,11 +10,15 @@ def search_google(keywords):
     search_term = (" OR ".join(keywords)).replace(" ", "+")
 
     response = requests.get(f"https://www.google.com/search?q={search_term}").text
-    return [x for x in re.findall("href=\"/url\?q=(.*?)\"", response) if "google.com" not in x]
+    return [re.sub(r"&?amp;.*$", "", x) for x in re.findall("href=\"/url\?q=(.*?)\"", response) if "google.com" not in x]
 
 
 def get_body_text(url):
     html = requests.get(url).text.replace("\n", " ")
+    html = re.sub("<script.*?>(.*?)</script>", "", html)
+    html = re.sub("<nav.*?>(.*?)</nav>", "", html)
+    html = re.sub("<header.*?>(.*?)</header>", "", html)
+    html = re.sub("<footer.*?>(.*?)</footer>", "", html)
     text = [re.sub("<.*?>|&#?[0-9a-zA-Z]+;", "", x) for x in re.findall("<p.*?>(.*?)</p>", html)]
 
     return " ".join(text)
@@ -68,8 +72,7 @@ def summarizer(text, compactness=1.1):
 
 
 def process_keywords(keywords):
-    return summarizer("\n\n".join([get_body_text(url) for url in search_google(keywords)]))
+    return summarizer("\n\n".join([get_body_text(url) for url in search_google(keywords)[:3]]))
 
 if __name__ == "__main__":
-    link = "https://en.wikipedia.org/wiki/Magnetohydrodynamics"
-    print(summarizer(get_body_text(link)))
+    print(process_keywords(["ukraine"]))
