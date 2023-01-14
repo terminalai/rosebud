@@ -24,7 +24,7 @@ def verifyCode():
 def processAudio():
     global i
     i += 1
-    print(request.get("code"))
+    #print(request.get("code"))
     audio = request.files["audio"]
     audio.save(f"{i}.wav")
     audio.close()

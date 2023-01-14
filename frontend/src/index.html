@@ -125,14 +125,14 @@
                      rec.start();
                      rec.onstop = (e) => {
                          console.log("recorder stopped");
-                         const blob = new Blob(chunks, { type: "audio/ogg; codecs=opus" });
+                         const blob = new Blob(chunks, { type: "audio/wav; codecs=opus" });
                          chunks = [];
                          console.log(blob);
-                         fetch(`${URL}/process`,{
+                         fetch(`${URL}/processAudio`,{
                              method: 'POST',
                              body: blob
                          });
-                         recordingLoop();
+                         recordingLoop(rec);
                      }
                      console.log(rec.state);
                      let chunks = [];
@@ -142,7 +142,7 @@
                      setTimeout(() => {
                          console.log("Stopping recording");
                          rec.stop()
-                         }, 500 * 10);
+                         }, 10000);
                  }
 
                  async function toggleRecording() {
