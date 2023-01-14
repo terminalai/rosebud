@@ -67,6 +67,9 @@ def summarizer(text, compactness=1.1):
     return summary
 
 
+def process_keywords(keywords):
+    return summarizer("\n\n".join([get_body_text(url) for url in search_google(keywords)]))
+
 if __name__ == "__main__":
     link = "https://en.wikipedia.org/wiki/Magnetohydrodynamics"
     print(summarizer(get_body_text(link)))

@@ -3,6 +3,8 @@ import speech_recognition as sr
 import os
 from gtts import gTTS
 from pydub import AudioSegment
+from keybert import KeyBERT
+from algorithm.web_scrape import process_keywords
 
 i = 0
 
@@ -10,6 +12,7 @@ i = 0
 app = Flask(__name__)
 
 r = sr.Recognizer()
+kw_model = KeyBERT()
 
 @app.route("/verifyCode", methods=["POST"])
 def verifyCode():
@@ -33,6 +36,11 @@ def processAudio():
     os.remove("temp.wav")
 
     # text is still in memory :)
+
+    keywords = [i[0] for i in kw_model.extract_keywords(text)]
+
+    text = process_keywords(keywords)
+
 
     myobj = gTTS(text=text, lang="en", slow=False)
 
