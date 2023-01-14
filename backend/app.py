@@ -18,6 +18,7 @@ def main():
 
 @app.route("/verifyCode", methods=["GET"])
 def verifyCode():
+    print('received code')
     res = jsonify(dict(response = request.args.get("code", 123456, int) == 140123))
     res.headers.add('Access-Control-Allow-Origin','*')
     return res
@@ -72,4 +73,4 @@ def processAudio():
 
 
 if __name__ == '__main__':
-    app.run(host="127.0.0.1", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)
