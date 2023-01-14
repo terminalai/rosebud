@@ -11,12 +11,14 @@ i = 0
 # Initiate Flask App
 app = Flask(__name__)
 
-r = sr.Recognizer()
-kw_model = KeyBERT()
+@app.route("/")
+def main():
+    return "<h1>Hello</h1>"
 
-@app.route("/verifyCode", methods=["POST"])
+
+@app.route("/verifyCode", methods=["GET"])
 def verifyCode():
-    return request.get("code") == 140123
+    return jsonify(dict(response = request.args.get("code", 123456, int) == 140123))
 
 @app.route("/processAudio", methods=["POST"])
 def processAudio():
@@ -26,6 +28,9 @@ def processAudio():
     audio = request.files["audio"]
     audio.save(f"{i}.wav")
     audio.close()
+
+    r = sr.Recognizer()
+    kw_model = KeyBERT()
 
     with sr.AudioFile("temp.wav") as source:
         # listen for the data (load audio to memory)
@@ -60,4 +65,4 @@ def processAudio():
 
 
 if __name__ == '__main__':
-    app.run(host="127.0.0.1", port=5000)
+    app.run(host="127.0.0.1", port=5000, debug=True)

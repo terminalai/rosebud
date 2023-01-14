@@ -29,7 +29,7 @@
             crossOrigin="anonymous" referrerpolicy="no-referrer"></script>
     <title>Rosebud</title>
     <script>
-        const URL = "192.168.1.102";
+        const URL = "http://127.0.0.1:5000"; // 192.168.1.102
     </script>
 </head>
 <body class="">
@@ -79,15 +79,13 @@
                         const inputs = Array.from(document.querySelectorAll('#otp > *[id]'));
                         const code = inputs.map((x) => x.value).join("");
                         console.log(code);
-                        const res = fetch(`${URL}/verify}`,{
-                            method: "GET",
-                            body: JSON.stringify(code)
-                        }).then((data) => {
+                        const res = fetch(`${URL}/verifyCode?code=${code}`).then((data) => {
                             const failure = document.getElementById('connection-failure');
                             const success = document.getElementById('connection-success');
-                            failure.hidden = data;
-                            success.hidden = !data;
+                            failure.hidden = data.response;
+                            success.hidden = !data.response;
                             }).catch((error) => {
+                                console.log(error);
                             const failure = document.getElementById('connection-failure');
                             const success = document.getElementById('connection-success');
                             failure.hidden = false;
