@@ -6,8 +6,6 @@ from pydub import AudioSegment
 from keybert import KeyBERT
 from algorithm.web_scrape import process_keywords
 
-i = 0
-
 # Initiate Flask App
 app = Flask(__name__)
 
@@ -23,11 +21,63 @@ def verifyCode():
     res.headers.add('Access-Control-Allow-Origin','*')
     return res
 
+@app.route("/transcript", methods=["POST"])
+def transcript():
+    audio = request.files["audio"]
+    audio.save(f"temp.ogg")
+    audio.close()
+
+    x = AudioSegment.from_file("temp.ogg")
+    x.export("temp.wav", format='wav')
+
+    r = sr.Recognizer()
+
+    with sr.AudioFile("temp.wav") as source:
+        # listen for the data (load audio to memory)
+        audio_data = r.record(source)
+        # recognize (convert from speech to text)
+        text = r.recognize_google(audio_data)
+
+    os.remove("temp.ogg")
+
+    print(text)
+
+    res = jsonify(text)
+    res.headers.add('Access-Control-Allow-Origin', '*')
+    return res
+
+@app.route("/keywords", methods=["GET"])
+def keywords():
+    text = request.args.get("text")
+
+    kw_model = KeyBERT()
+
+    res = kw_model.extract_keywords(
+        text, keyphrase_ngram_range=(1, 2), stop_words=None)
+
+    print(res)
+
+    keywords = [i[0] for i in res][:3]
+
+    print(keywords)
+
+    res = jsonify(keywords)
+    res.headers.add('Access-Control-Allow-Origin', '*')
+    return res
+
+
+@app.route("/facts", methods=["GET"])
+def facts():
+    keywords = [i.strip() for i in request.args.get("keywords").split(",")]
+    text = process_keywords(keywords)
+    res = jsonify(text)
+    res.headers.add('Access-Control-Allow-Origin', '*')
+    return res
+    
+
+
 @app.route("/processAudio", methods=["POST"])
 def processAudio():
-    global i
-    i += 1
-    #print(request.get("code"))
     audio = request.files["audio"]
     audio.save(f"temp.ogg")
     audio.close()

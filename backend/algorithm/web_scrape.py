@@ -101,7 +101,7 @@ def summarizer(text, keywords):
 
 def process_keywords(keywords):
     texts = []
-    for url in search_google(keywords)[:7]:
+    for url in search_google(keywords)[:3]:
         try:
             texts.append(get_body_text(url))
         except requests.exceptions.ConnectionError:
