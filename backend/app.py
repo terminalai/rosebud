@@ -4,15 +4,25 @@ import os
 from gtts import gTTS
 from pydub import AudioSegment
 
+i = 0
+
 # Initiate Flask App
 app = Flask(__name__)
 
 r = sr.Recognizer()
 
-@app.route("/trivia", methods=["POST"])
-def trivia():
+@app.route("/verifyCode", methods=["POST"])
+def verifyCode():
+    return request.get("code") == 140123
+
+@app.route("/processAudio", methods=["POST"])
+def processAudio():
+    global i
+    i += 1
+    print(request.get("code"))
     audio = request.files["audio"]
-    audio.save("temp.wav")
+    audio.save(f"{i}.wav")
+    audio.close()
 
     with sr.AudioFile("temp.wav") as source:
         # listen for the data (load audio to memory)
