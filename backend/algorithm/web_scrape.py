@@ -7,14 +7,13 @@ from nltk.tokenize import word_tokenize, sent_tokenize
 
 
 def search_google(keywords):
-    arr = []
-    # site:wikipedia.org
-    arr += [
+    arr = [
         re.sub(r"&?amp;.*$", "", x) 
         for x in re.findall(
             "href=\"/url\?q=(.*?)\"", 
-            requests.get("https://www.google.com/search?q=%s" % (" ".join(keywords))).text)
-            if "google.com" not in x]
+            requests.get("https://www.google.com/search?q=%s" % (" ".join(keywords))).text
+        ) if "google.com" not in x
+    ]
     return arr
 
 
@@ -59,10 +58,10 @@ def summarizer(text, keywords):
 
         for keyword in keywords:
             if PorterStemmer().stem(keyword) in sentence:
-                sentence_value[sentence] += 1
+                sentence_value[sentence] += 2
 
     for sentence in sentence_value:
-        sentence_value[sentence] = int(sentence_value[sentence] / len(sentence))
+        sentence_value[sentence] = sentence_value[sentence] / len(sentence) # + 0.0001 * len(sentence)
 
     sum_values = 0
     for sentence in sentence_value:
@@ -96,12 +95,12 @@ def summarizer(text, keywords):
         else:
             continuous = False
 
-    return " ".join(sorted(summary, key=lambda x: sum([len(y) for y in x]))[-1])
+    return "".join(sorted(summary, key=lambda x: sum([len(y) for y in x]))[-1])
 
 
 def process_keywords(keywords):
     texts = []
-    for url in search_google(keywords)[:7]:
+    for url in search_google(keywords)[:3]:
         try:
             texts.append(get_body_text(url))
         except requests.exceptions.ConnectionError:
@@ -110,4 +109,4 @@ def process_keywords(keywords):
     return summarizer("\n\n".join(texts), keywords)
 
 if __name__ == "__main__":
-    print(process_keywords(["amazon", "bolsonaro"]))
+    print(process_keywords(["donald", "trump", "populism"]))
