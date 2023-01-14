@@ -24,7 +24,13 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Merriweather&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/recorderjs/0.1.0/recorder.min.js"
+            integrity="sha512-Dc8aBUPSsnAiEtyqTYZrldxDfs2FnS8cU7BVHIJ1m5atjKrtQCoPRIn3gsVbKm2qY8NwjpTVTnawoC4XBvEZiQ=="
+            crossOrigin="anonymous" referrerpolicy="no-referrer"></script>
     <title>Rosebud</title>
+    <script>
+        const URL = "192.168.1.102";
+    </script>
 </head>
 <body class="">
 <main class="mx-auto mx-5 sm:max-w-6xl px-4 mt-20 ">
@@ -42,20 +48,25 @@
                     </p>
                 </div>
                 <div id="otp" class="flex flex-row justify-center text-center px-2 mt-5 col-span-12 mx-auto">
-                    <input class="m-2 border border-r-2 h-20 w-20 text-center form-control rounded text-4xl" type="text" id="first" maxlength="1" />
-                    <input class="m-2 border border-r-2 h-20 w-20 text-center form-control rounded text-4xl" type="text" id="second" maxlength="1" />
-                    <input class="m-2 border border-r-2 h-20 w-20 text-center form-control rounded text-4xl" type="text" id="third" maxlength="1" />
-                    <input class="m-2 border border-r-2 h-20 w-20 text-center form-control rounded text-4xl" type="text" id="fourth" maxlength="1" />
-                    <input class="m-2 border border-r-2 h-20 w-20 text-center form-control rounded text-4xl" type="text" id="fifth" maxlength="1" />
-                    <input class="m-2 border border-r-2 h-20 w-20 text-center form-control rounded text-4xl" type="text" id="sixth" maxlength="1" />
+                    <input class="m-2 border border-r-4 h-20 w-20 text-center form-control rounded text-4xl" type="text" id="first" maxlength="1" />
+                    <input class="m-2 border border-r-4 h-20 w-20 text-center form-control rounded text-4xl" type="text" id="second" maxlength="1" />
+                    <input class="m-2 border border-r-4 h-20 w-20 text-center form-control rounded text-4xl" type="text" id="third" maxlength="1" />
+                    <input class="m-2 border border-r-4 h-20 w-20 text-center form-control rounded text-4xl" type="text" id="fourth" maxlength="1" />
+                    <input class="m-2 border border-r-4 h-20 w-20 text-center form-control rounded text-4xl" type="text" id="fifth" maxlength="1" />
+                    <input class="m-2 border border-r-4 h-20 w-20 text-center form-control rounded text-4xl" type="text" id="sixth" maxlength="1" />
                 </div>
                 <div class="col-span-12 text-5xl mx-auto mt-6">
-                    <button class="text-5xl col-span-12 mx-auto bg-slate-200 text-gray-600 hover:bg-blue-700 p-5 rounded rounded-2xl">
+                    <button id="verifyConn" class="text-5xl col-span-12 mx-auto bg-slate-200 text-gray-600 hover:bg-blue-700 p-5 rounded rounded-2xl">
                         Verify
                     </button>
                 </div>
 
-                <p class="col-span-12 mx-auto mt-4 text-4xl text-green-600">Connection established!</p>
+                <p hidden id="connection-success" class="col-span-12 mx-auto mt-4 text-4xl text-green-600">
+                    Connection established!
+                </p>
+                <p hidden id="connection-failure" class="col-span-12 mx-auto mt-4 text-4xl text-red-600">
+                    Can't connect to server!
+                </p>
                 <script>
                     document.addEventListener("DOMContentLoaded", function(event) {
                         function OTPInput() {
@@ -63,6 +74,28 @@
                             for (let i = 0; i < inputs.length; i++) { inputs[i].addEventListener('keydown', function(event) { if (event.key==="Backspace" ) { inputs[i].value='' ; if (i !==0) inputs[i - 1].focus(); } else { if (i===inputs.length - 1 && inputs[i].value !=='' ) { return true; } else if (event.keyCode> 47 && event.keyCode < 58) { inputs[i].value=event.key; if (i !==inputs.length - 1) inputs[i + 1].focus(); event.preventDefault(); } else if (event.keyCode> 64 && event.keyCode < 91) { inputs[i].value=String.fromCharCode(event.keyCode); if (i !==inputs.length - 1) inputs[i + 1].focus(); event.preventDefault(); } } }); } }
                         OTPInput();
                     });
+                    const verify = document.getElementById('verifyConn');
+                    verify.addEventListener('click', () => {
+                        const inputs = Array.from(document.querySelectorAll('#otp > *[id]'));
+                        const code = inputs.map((x) => x.value).join("");
+                        console.log(code);
+                        const res = fetch(`${URL}/verify}`,{
+                            method: "GET",
+                            body: JSON.stringify(code)
+                        }).then((data) => {
+                            const failure = document.getElementById('connection-failure');
+                            const success = document.getElementById('connection-success');
+                            failure.hidden = data;
+                            success.hidden = !data;
+                            }).catch((error) => {
+                            const failure = document.getElementById('connection-failure');
+                            const success = document.getElementById('connection-success');
+                            failure.hidden = false;
+                            success.hidden = true;
+                            console.log('Error verifying server');
+                        });
+                    });
+
                 </script>
             </div>
             <hr class="w-[95%] h-3 my-4 bg-gray-200 rounded my-10 mx-auto">
@@ -82,6 +115,35 @@
                     </button>
                 </div>
             </div>
+
+            <script>
+                 const mic = document.getElementById('microphone');
+                 const AudioContext = window.AudioContext || window.webkitAudioContext;
+                 mic.addEventListener('click',toggleRecording);
+                 function toggleRecording() {
+                     console.log('mic button clicked');
+                     const constraints = { audio: true, video:false }
+
+                     navigator.mediaDevices.getUserMedia(constraints).then(function(stream) {
+                         console.log("getUserMedia() success, stream created, initializing Recorder.js ...");
+                         const audioContext = new AudioContext();
+                         const gumStream = stream;
+                         const input = audioContext.createMediaStreamSource(stream);
+                         const rec = new Recorder(input,{numChannels:1})
+                         rec.record()
+                         console.log("Recording started");
+
+                     }).catch(function(err) {
+                         //enable the record button if getUserMedia() fails
+                         recordButton.disabled = false;
+                         stopButton.disabled = true;
+                         pauseButton.disabled = true
+                     });
+
+                 }
+            </script>
+
+
 
             <hr class="w-[95%] h-3 my-4 bg-gray-200 rounded my-10 mx-auto">
             <div class="flex grid h-100 w-[100%]">
