@@ -7,7 +7,7 @@ from nltk.tokenize import word_tokenize, sent_tokenize
 
 
 def search_google(keywords):
-    search_term = (" OR ".join(keywords)).replace(" ", "+")
+    search_term = ("+".join(keywords))
 
     response = requests.get(f"https://www.google.com/search?q={search_term}").text
     return [re.sub(r"&?amp;.*$", "", x) for x in re.findall("href=\"/url\?q=(.*?)\"", response) if "google.com" not in x]
