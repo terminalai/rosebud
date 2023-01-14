@@ -59,10 +59,26 @@ def summarizer(text, compactness=1.1):
 
     average = int(sum_values / len(sentence_value))
 
+    closest = 999999999999999999
+    compactness2 = 0
+    for compactness in [1.1, 1.15, 1.2, 1.25, 1.3, 1.35, 1.4, 1.45, 1.5, 1.55, 1.6]:
+        summary = ''
+        continuous = True
+        for sentence in sentences:
+            if sentence in sentence_value and sentence_value[sentence] > (compactness * average):
+                summary += (" " if continuous else "\n\n") + sentence
+                continuous = True
+            else:
+                continuous = False
+
+        dist = abs(2000 - len(summary))
+        closest = min(dist, closest)
+        if closest == dist: compactness2 = compactness
+
     summary = ''
     continuous = True
     for sentence in sentences:
-        if sentence in sentence_value and sentence_value[sentence] > (compactness * average):
+        if sentence in sentence_value and sentence_value[sentence] > (compactness2 * average):
             summary += (" " if continuous else "\n\n") + sentence
             continuous = True
         else:
