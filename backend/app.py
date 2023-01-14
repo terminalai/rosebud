@@ -28,11 +28,14 @@ def processAudio():
     i += 1
     #print(request.get("code"))
     audio = request.files["audio"]
-    audio.save(f"{i}.wav")
+    audio.save(f"temp.ogg")
     audio.close()
 
+    x = AudioSegment.from_file("temp.ogg")
+    x.export("temp.wav", format='wav')
+
     r = sr.Recognizer()
-    kw_model = KeyBERT()
+    #kw_model = KeyBERT()
 
     with sr.AudioFile("temp.wav") as source:
         # listen for the data (load audio to memory)
@@ -40,13 +43,13 @@ def processAudio():
         # recognize (convert from speech to text)
         text = r.recognize_google(audio_data)
     
-    os.remove("temp.wav")
+    os.remove("temp.ogg")
 
     # text is still in memory :)
 
-    keywords = [i[0] for i in kw_model.extract_keywords(text)]
+    #keywords = [i[0] for i in kw_model.extract_keywords(text)]
 
-    text = process_keywords(keywords)
+    #text = process_keywords(keywords)
 
 
     myobj = gTTS(text=text, lang="en", slow=False)

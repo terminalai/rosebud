@@ -128,7 +128,7 @@
                      rec.start();
                      rec.onstop = (e) => {
                          console.log("recorder stopped");
-                         const blob = new Blob(chunks, { type: "audio/wav; codecs=opus" });
+                         const blob = new Blob(chunks, { type: "audio/ogg; codecs=opus" });
                          chunks = [];
                          console.log(blob);
                          const fd = new FormData();
