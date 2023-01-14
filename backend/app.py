@@ -18,7 +18,9 @@ def main():
 
 @app.route("/verifyCode", methods=["GET"])
 def verifyCode():
-    return jsonify(dict(response = request.args.get("code", 123456, int) == 140123))
+    res = jsonify(dict(response = request.args.get("code", 123456, int) == 140123))
+    res.headers.add('Access-Control-Allow-Origin','*')
+    return res
 
 @app.route("/processAudio", methods=["POST"])
 def processAudio():
@@ -61,7 +63,9 @@ def processAudio():
                 yield data
                 data = fwav.read(1024)
 
-    return Response(generate(), mimetype="audio/x-wav")
+    res = Response(generate(), mimetype="audio/x-wav")
+    res.headers.add('Access-Control-Allow-Origin','*')
+    return res
 
 
 if __name__ == '__main__':
