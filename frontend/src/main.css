@@ -1,0 +1,10 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+    .sidenote {
+        @apply float-right clear-left relative mr-[-25rem] border-l-4 w-[20rem] bg-slate-100 p-5 font-sans
+    }
+
+}

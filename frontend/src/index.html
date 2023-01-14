@@ -1,0 +1,156 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                fontFamily: {
+                    sans: ['Segoe UI', 'sans-serif'],
+                    serif: ['Merriweather', 'serif'],
+                },
+            },
+        }
+        window.MathJax = {
+            loader: {load: ['[tex]/physics']},
+            tex: {packages: {'[+]': ['physics']}}
+        };
+    </script>
+    <link rel="stylesheet" href="main.css"/>
+    <!--    Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather&display=swap" rel="stylesheet">
+    <title>Rosebud</title>
+</head>
+<body class="">
+<main class="mx-auto mx-5 sm:max-w-6xl px-4 mt-20 ">
+    <h1 class="font-semibold text-8xl m-6">Rosebud</h1>
+    <hr class="w-[95%] h-6 my-4 bg-sky-200 rounded my-10 mx-auto">
+    <div class="mx-10">
+        <div>
+            <div class="flex grid h-100 w-[100%]">
+                <div class="w-[100%] block col-span-12">
+                    <span class="inline-flex items-center p-4 px-8 bg text-6xl bg-slate-300 rounded text-gray-600 border border-r-4 border-gray-300 rounded-l-md ">
+                        1
+                    </span>
+                    <p class="my-auto ml-5 inline-block text-5xl">
+                        Enter the server code.
+                    </p>
+                </div>
+                <div id="otp" class="flex flex-row justify-center text-center px-2 mt-5 col-span-12 mx-auto">
+                    <input class="m-2 border border-r-2 h-20 w-20 text-center form-control rounded text-4xl" type="text" id="first" maxlength="1" />
+                    <input class="m-2 border border-r-2 h-20 w-20 text-center form-control rounded text-4xl" type="text" id="second" maxlength="1" />
+                    <input class="m-2 border border-r-2 h-20 w-20 text-center form-control rounded text-4xl" type="text" id="third" maxlength="1" />
+                    <input class="m-2 border border-r-2 h-20 w-20 text-center form-control rounded text-4xl" type="text" id="fourth" maxlength="1" />
+                    <input class="m-2 border border-r-2 h-20 w-20 text-center form-control rounded text-4xl" type="text" id="fifth" maxlength="1" />
+                    <input class="m-2 border border-r-2 h-20 w-20 text-center form-control rounded text-4xl" type="text" id="sixth" maxlength="1" />
+                </div>
+                <div class="col-span-12 text-5xl mx-auto mt-6">
+                    <button class="text-5xl col-span-12 mx-auto bg-slate-200 text-gray-600 hover:bg-blue-700 p-5 rounded rounded-2xl">
+                        Verify
+                    </button>
+                </div>
+
+                <p class="col-span-12 mx-auto mt-4 text-4xl text-green-600">Connection established!</p>
+                <script>
+                    document.addEventListener("DOMContentLoaded", function(event) {
+                        function OTPInput() {
+                            const inputs = document.querySelectorAll('#otp > *[id]');
+                            for (let i = 0; i < inputs.length; i++) { inputs[i].addEventListener('keydown', function(event) { if (event.key==="Backspace" ) { inputs[i].value='' ; if (i !==0) inputs[i - 1].focus(); } else { if (i===inputs.length - 1 && inputs[i].value !=='' ) { return true; } else if (event.keyCode> 47 && event.keyCode < 58) { inputs[i].value=event.key; if (i !==inputs.length - 1) inputs[i + 1].focus(); event.preventDefault(); } else if (event.keyCode> 64 && event.keyCode < 91) { inputs[i].value=String.fromCharCode(event.keyCode); if (i !==inputs.length - 1) inputs[i + 1].focus(); event.preventDefault(); } } }); } }
+                        OTPInput();
+                    });
+                </script>
+            </div>
+            <hr class="w-[95%] h-3 my-4 bg-gray-200 rounded my-10 mx-auto">
+            <div class="flex grid h-100 w-[100%]">
+                <div class="w-[100%] block col-span-12">
+                    <span class="inline-flex items-center p-4 px-8 bg text-6xl bg-slate-300 rounded text-gray-600 border border-r-4 border-gray-300 rounded-l-md ">
+                        2
+                    </span>
+                    <p class="my-auto ml-5 inline-block text-5xl">
+                        Enable audio recording
+                    </p>
+                </div>
+                <div class="mx-auto align-middle justify-center flex col-span-12 mt-10">
+                    <button id="microphone" type="button" class="mx-auto p-10 text-white shadow-xl hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center mr-2 ">
+                        <img class="w-[10rem] h-[10rem] p-10" src="mic.svg" alt="microphone">
+                        <span class="sr-only">Icon description</span>
+                    </button>
+                </div>
+            </div>
+
+            <hr class="w-[95%] h-3 my-4 bg-gray-200 rounded my-10 mx-auto">
+            <div class="flex grid h-100 w-[100%]">
+
+                <div class="w-[100%] block col-span-12">
+                    <span class="inline-flex items-center p-4 px-8 bg text-6xl bg-slate-300 rounded text-gray-600 border border-r-4 border-gray-300 rounded-l-md ">
+                        3
+                    </span>
+                        <p class="my-auto ml-5 inline-block text-5xl">
+                            Transcript
+                        </p>
+                    <div class="mx-auto align-middle justify-center flex col-span-12 mt-10 mx-auto">
+                            <textarea disabled class="text-4xl col-span-12 bg-slate-200 p-5 border-slate-800 mx-auto " rows="4" cols="30">
+Transcript goes here.
+                            </textarea>
+                    </div>
+                </div>
+            </div>
+            <hr class="w-[95%] h-3 my-4 bg-gray-200 rounded my-10 mx-auto">
+            <div class="w-[100%] block col-span-12">
+                <span class="inline-flex items-center p-4 px-8 bg text-6xl bg-slate-300 rounded text-gray-600 border border-r-4 border-gray-300 rounded-l-md ">
+                    4
+                </span>
+                <p class="my-auto ml-5 inline-block text-5xl">
+                    Keywords
+                </p>
+                <div class="flex col-span-12 mt-10 row flex-wrap">
+                    <span class="col-span-3 bg-slate-200 rounded-3xl p-5 m-2">
+                            <p class="text-5xl">Text</p>
+                    </span>
+                    <span class="col-span-3 bg-slate-200 rounded-3xl p-5 m-2">
+                            <p class="text-5xl">Text</p>
+                    </span>
+                    <span class="col-span-3 bg-slate-200 rounded-3xl p-5 m-2">
+                            <p class="text-5xl">Text</p>
+                    </span>
+                    <span class="col-span-3 bg-slate-200 rounded-3xl p-5 m-2">
+                            <p class="text-5xl">Text</p>
+                    </span>
+                    <span class="col-span-3 bg-slate-200 rounded-3xl p-5 m-2">
+                            <p class="text-5xl">Text</p>
+                    </span>
+                    <span class="col-span-3 bg-slate-200 rounded-3xl p-5 m-2">
+                            <p class="text-5xl">Text</p>
+                    </span>
+                    <span class="col-span-3 bg-slate-200 rounded-3xl p-5 m-2">
+                            <p class="text-5xl">Text</p>
+                    </span>
+                </div>
+            </div>
+            <hr class="w-[95%] h-3 my-4 bg-gray-200 rounded my-10 mx-auto">
+            <div class="w-[100%] block col-span-12">
+                <span class="inline-flex items-center p-4 px-8 bg text-6xl bg-slate-300 rounded text-gray-600 border border-r-4 border-gray-300 rounded-l-md ">
+                    5
+                </span>
+                <p class="my-auto ml-5 inline-block text-5xl">
+                    Facts
+                </p>
+                <div class="flex flex-col col-span-12 mt-10">
+                    <div class="col-span-12 bg-slate-200 rounded-3xl p-5 m-2">
+                            <p class="text-5xl">Text jkldsfjlk dsjsjl dskjfklsdj lkfd kdjflks djflsdkjf</p>
+                    </div>
+                    <div class="col-span-12 bg-slate-200 rounded-3xl p-5 m-2">
+                            <p class="text-5xl">Text</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>
