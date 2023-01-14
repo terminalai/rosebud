@@ -23,7 +23,7 @@ def get_body_text(url):
 
     return " ".join(text)
 
-def summarizer(text, compactness=1.1):
+def summarizer(text, keywords):
     stop_words = set(stopwords.words("english"))
     all_words = word_tokenize(text)
     all_words = [PorterStemmer().stem(word) for word in all_words]
@@ -50,6 +50,10 @@ def summarizer(text, compactness=1.1):
                 else:
                     sentence_value[sentence] = index
 
+        for keyword in keywords:
+            if PorterStemmer().stem(keyword) in sentence:
+                sentence_value[sentence] += 1
+
     for sentence in sentence_value:
         sentence_value[sentence] = int(sentence_value[sentence] / len(sentence))
 
@@ -61,30 +65,31 @@ def summarizer(text, compactness=1.1):
 
     closest = 999999999999999999
     compactness2 = 0
-    for compactness in [1.1, 1.15, 1.2, 1.25, 1.3, 1.35, 1.4, 1.45, 1.5, 1.55, 1.6]:
+    for compactness in range(10, 20, 1):
         summary = ''
         continuous = True
         for sentence in sentences:
-            if sentence in sentence_value and sentence_value[sentence] > (compactness * average):
+            if sentence in sentence_value and sentence_value[sentence] > (compactness/10 * average):
                 summary += (" " if continuous else "\n\n") + sentence
                 continuous = True
             else:
                 continuous = False
 
-        dist = abs(2000 - len(summary))
+        dist = abs(5000 - len(summary))
         closest = min(dist, closest)
-        if closest == dist: compactness2 = compactness
+        if closest == dist: compactness2 = compactness/10
 
-    summary = ''
+    summary = []
     continuous = True
     for sentence in sentences:
         if sentence in sentence_value and sentence_value[sentence] > (compactness2 * average):
-            summary += (" " if continuous else "\n\n") + sentence
+            if continuous: summary.append(sentence)
+            else: summary.append([sentence])
             continuous = True
         else:
             continuous = False
 
-    return summary
+    return " ".join(sorted(summary, key=lambda x: sum([len(y) for y in x]))[-1])
 
 
 def process_keywords(keywords):
@@ -95,7 +100,7 @@ def process_keywords(keywords):
         except requests.exceptions.ConnectionError:
             continue
 
-    return summarizer("\n\n".join(texts))
+    return summarizer("\n\n".join(texts), keywords)
 
 if __name__ == "__main__":
-    print(process_keywords(["superiority", "ethnic", "racial", "deliberations", "moral"]))
+    print(process_keywords(["amazon", "bolsonaro"]))
