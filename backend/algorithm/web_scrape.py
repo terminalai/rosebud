@@ -7,10 +7,15 @@ from nltk.tokenize import word_tokenize, sent_tokenize
 
 
 def search_google(keywords):
-    search_term = ("+".join(keywords))
-
-    response = requests.get(f"https://www.google.com/search?q={search_term}").text
-    return [re.sub(r"&?amp;.*$", "", x) for x in re.findall("href=\"/url\?q=(.*?)\"", response) if "google.com" not in x]
+    arr = []
+    # site:wikipedia.org
+    arr += [
+        re.sub(r"&?amp;.*$", "", x) 
+        for x in re.findall(
+            "href=\"/url\?q=(.*?)\"", 
+            requests.get("https://www.google.com/search?q=%s" % (" ".join(keywords))).text)
+            if "google.com" not in x]
+    return arr
 
 
 def get_body_text(url):
@@ -19,6 +24,8 @@ def get_body_text(url):
     html = re.sub("<nav.*?>(.*?)</nav>", "", html)
     html = re.sub("<header.*?>(.*?)</header>", "", html)
     html = re.sub("<footer.*?>(.*?)</footer>", "", html)
+    html = re.sub("<style.*?>(.*?)</style>", "", html)
+    html = re.sub("<noscript.*?>(.*?)</noscript>", "", html)
     text = [re.sub("<.*?>|&#?[0-9a-zA-Z]+;", "", x) for x in re.findall("<p.*?>(.*?)</p>", html)]
 
     return " ".join(text)

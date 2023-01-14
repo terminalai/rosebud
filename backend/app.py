@@ -50,7 +50,12 @@ def processAudio():
     # text is still in memory :)
 
     kw_model = KeyBERT()
-    keywords = [i[0] for i in kw_model.extract_keywords(text)]
+
+    res = kw_model.extract_keywords(text, keyphrase_ngram_range=(1, 2), stop_words=None)
+
+    print(res)
+
+    keywords = [i[0] for i in res][:3]
 
     print(keywords)
 
@@ -80,4 +85,4 @@ def processAudio():
 
 
 if __name__ == '__main__':
-    app.run(host="127.0.0.1", port=5000)
+    app.run(host="127.0.0.1", port=5000, debug=True)
