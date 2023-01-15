@@ -127,6 +127,7 @@ def process_keywords(keywords):
         summaries = [summarizer(x, keywords) for x in texts]
         return [x for x in summaries if len(x) > 5][0]
     except ZeroDivisionError: return "No results found."
+    except IndexError: return "No results found."
 
 
 if __name__ == "__main__":
