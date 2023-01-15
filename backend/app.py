@@ -25,28 +25,31 @@ def verifyCode():
 
 @app.route("/transcript", methods=["POST"])
 def transcript():
-    audio = request.files["audio"]
-    audio.save(f"temp.ogg")
-    audio.close()
+    try:
+        audio = request.files["audio"]
+        audio.save(f"temp.ogg")
+        audio.close()
 
-    x = AudioSegment.from_file("temp.ogg")
-    x.export("temp.wav", format='wav')
+        x = AudioSegment.from_file("temp.ogg")
+        x.export("temp.wav", format='wav')
 
-    r = sr.Recognizer()
+        r = sr.Recognizer()
 
-    with sr.AudioFile("temp.wav") as source:
-        # listen for the data (load audio to memory)
-        audio_data = r.record(source)
-        # recognize (convert from speech to text)
-        text = r.recognize_google(audio_data)
+        with sr.AudioFile("temp.wav") as source:
+            # listen for the data (load audio to memory)
+            audio_data = r.record(source)
+            # recognize (convert from speech to text)
+            text = r.recognize_google(audio_data)
 
-    os.remove("temp.ogg")
+        os.remove("temp.ogg")
+    except:
+        text = ""
+    finally:
+        print(text)
 
-    print(text)
-
-    res = jsonify(text)
-    res.headers.add('Access-Control-Allow-Origin', '*')
-    return res
+        res = jsonify(text)
+        res.headers.add('Access-Control-Allow-Origin', '*')
+        return res
 
 @app.route("/keywords", methods=["GET"])
 def keywords():
@@ -55,7 +58,8 @@ def keywords():
     kw_model = KeyBERT()
 
     res = kw_model.extract_keywords(
-        text, )#keyphrase_ngram_range=(1, 2), stop_words=None)
+        text, keyphrase_ngram_range=(1, 2), stop_words=None, use_mmr=True, top_n=3
+    )
 
     print(res)
 
@@ -79,14 +83,17 @@ def facts():
 
 @app.route("/audio", methods=["GET"])
 def getAudio():
-    myobj = gTTS(text=request.args.get("text"), lang="en", slow=False)
+    if(request.args.get("text")):
+        myobj = gTTS(text=request.args.get("text"), lang="en", slow=False)
 
-    myobj.save("temp.mp3")
+        myobj.save("temp.mp3")
 
-    sound = AudioSegment.from_mp3("temp.mp3")
+        sound = AudioSegment.from_mp3("temp.mp3")
 
-    sound = sound.speedup(1.5, 150, 25)
-    
+        sound = sound.speedup(1.5, 150, 25)
+    else:
+        sound = AudioSegment.empty()
+        
     sound.export("temp.wav", format="wav")
 
     def generate():

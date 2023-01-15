@@ -129,33 +129,34 @@
             <script>
                  const mic = document.getElementById('microphone');
                  const AudioContext = window.AudioContext || window.webkitAudioContext;
+
+                 var keepRunning = false;
                 
 
                  mic.addEventListener('click',toggleRecording);
 
                  async function recordingLoop(rec) {
-                        console.log("Recording started");
+                        console.log("Recording Loop has been called");
                         rec.start();
 
                         document.getElementById("audio-icon").src = "mic_red.svg"
                         rec.onstop = (e) => {
-                            console.log("recorder stopped");
+                            console.log("Recorder onStop has been called");
                             document.getElementById("audio-icon").src = "mic.svg"
                             const blob = new Blob(chunks, { type: "audio/ogg; codecs=opus" });
                             chunks = [];
-                            console.log(blob);
                             const fd = new FormData();
                             fd.append('audio', blob);
                             fetch(`${URL}/transcript`, {
                                 method: 'POST',
                                 body: fd
                             }).then(res => res.json()).then(data => {
-                                console.log(data);
+                                console.log("transcript received");
                                 el = document.getElementById("transcript");
                                 el.innerHTML = data;
                                 fetch(`${URL}/keywords?text=${data}`).then(res => res.json()).then(
                                     (keywords) => {
-                                        console.log(keywords);
+                                        console.log("keywords received");
                                         span = keywords.map(it =>
                                         `<span class="col-span-3 bg-slate-200 rounded-3xl p-5 m-2">
                                                 <p class="text-5xl">${it}</p>
@@ -164,18 +165,52 @@
                                         el.innerHTML = span;
                                         fetch(`${URL}/facts?keywords=${keywords.join(",")}`).then(res => res.json())
                                             .then(facts => {
-                                                document.getElementById("facts").innerHTML = `<div class="col-span-12 bg-slate-200 rounded-3xl p-5 m-2">
-                                                    <p class="text-5xl">${facts}</p>
-                                                    <audio controls autoplay>
-                                                    <source src="${URL}/audio?text=${facts}" type="audio/wav">
-                                                    Your browser does not support the audio element.
-                                                    </audio>
-                                                </div>`
+                                                if(keepRunning) {
+                                                    document.getElementById("facts").innerHTML = `<div class="col-span-12 bg-slate-200 rounded-3xl p-5 m-2">
+                                                        <p class="text-5xl">${facts}</p>
+                                                        <audio controls autoplay>
+                                                        <source src="${URL}/audio?text=${facts}" type="audio/wav">
+                                                        Your browser does not support the audio element.
+                                                        </audio>
+                                                    </div>`
+                                                } else {
+                                                    document.getElementById("facts").innerHTML = `<div class="col-span-12 bg-slate-200 rounded-3xl p-5 m-2">
+                                                        <p class="text-5xl">${facts}</p>
+                                                        <audio controls>
+                                                        <source src="${URL}/audio?text=${facts}" type="audio/wav">
+                                                        Your browser does not support the audio element.
+                                                        </audio>
+                                                    </div>`
+                                                }
+
+                                                if (keepRunning) {
+                                                    // setTimeout(() => {
+                                                    recordingLoop(rec);
+                                                    // }, 40000);
+                                                }
+                                            }).catch((e) => {
+                                                if (keepRunning) {
+                                                    // setTimeout(() => {
+                                                    recordingLoop(rec);
+                                                    // }, 40000);
+                                                }
                                             })
                                     }
-                                )
+                                ).catch((e) => {
+                                    if (keepRunning) {
+                                        // setTimeout(() => {
+                                        recordingLoop(rec);
+                                        // }, 40000);
+                                    }
+                                })
+                            }).catch((e) => {
+                                if (keepRunning) {
+                                    // setTimeout(() => {
+                                    recordingLoop(rec);
+                                    // }, 40000);
+                                }
                             });
-                            // recordingLoop(rec);
+                            
                         }
                         console.log(rec.state);
                         let chunks = [];
@@ -183,14 +218,19 @@
                             chunks.push(e.data);
                         };
                         setTimeout(() => {
-                            console.log("Stopping recording");
+                            console.log("Before onStop called");
+                            
                             rec.stop()
+                            
                         }, 20000);
                     
                  }
 
                  async function toggleRecording() {
-                     console.log('mic button clicked');
+                     if(keepRunning) console.log("STOP");
+                     else console.log("START");
+                     keepRunning = !keepRunning;
+                     if(keepRunning) {
                      navigator.mediaDevices.getUserMedia(
                          {
                              audio: true,
@@ -199,6 +239,7 @@
                          const mediaRecorder = new MediaRecorder(stream);
                          await recordingLoop(mediaRecorder);
                      })
+                    }
                  }
             </script>
 
@@ -217,37 +258,6 @@
                     <div class="mx-auto align-middle justify-center flex col-span-12 mt-10 mx-auto">
                             <textarea disabled id="transcript" disabled class="text-4xl col-span-12 bg-slate-200 p-5 border-slate-800 mx-auto " rows="4" cols="30">Transcript goes here.</textarea>
                     </div>
-                    <script>
-                        setInterval(() => {
-                            if (CONNECTED) {
-                                fetch(`${URL}/transcript`, {
-                                    method: 'GET'
-                                }).then(res => res.json())
-                                    .then((res) => {
-                                        if (res) {
-                                            document.getElementById('transcript-area').innerHTML = res;
-
-                                        }
-                                        });
-                                fetch(`${URL}/transcript`, {
-                                    method: 'GET'
-                                }).then(res => res.json())
-                                    .then((keywords) => {
-                                        if (keywords) {
-                                            keywordList = document.getElementById('keywords');
-                                            for (keyword of keywords) {
-                                                const span = document.createElement("span");
-                                                span.classList.addAll(['col-span-3','bg-slate-200','rounded-3xl','p-5','m-2']);
-                                                const p = document.createElement("p");
-                                                p.innerHTML = keyword;
-                                                p.classList.add('text-5xl');
-                                                span.childNodes.add(p);
-                                            }
-                                        }
-                                    });
-                            }
-                        }, 5 * 1000);
-                    </script>
                 </div>
             </div>
             <hr class="w-[95%] h-3 my-4 bg-gray-200 rounded my-10 mx-auto">
