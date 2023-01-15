@@ -110,12 +110,12 @@
                         2
                     </span>
                     <p class="my-auto ml-5 inline-block text-5xl">
-                        Enable audio recording
+                        Record Conversation
                     </p>
                 </div>
                 <div class="mx-auto align-middle justify-center flex col-span-12 mt-10">
-                    <button id="microphone" type="button" class="mx-auto p-10 text-white shadow-xl hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center mr-2 ">
-                        <img class="w-[10rem] h-[10rem] p-10" src="mic.svg" alt="microphone">
+                    <button id="microphone" type="button" class="mx-auto p-10 text-white shadow-xl hover:bg-blue-800 focus:ring-4 focus:outline-none font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center mr-2 ">
+                        <img class="w-[10rem] h-[10rem] p-10" src="mic.svg" alt="microphone" id="audio-icon">
                         <span class="sr-only">Icon description</span>
                     </button>
                 </div>
@@ -124,15 +124,18 @@
             <script>
                  const mic = document.getElementById('microphone');
                  const AudioContext = window.AudioContext || window.webkitAudioContext;
-
+                
 
                  mic.addEventListener('click',toggleRecording);
 
                  async function recordingLoop(rec) {
                         console.log("Recording started");
                         rec.start();
+
+                        document.getElementById("audio-icon").src = "mic_red.svg"
                         rec.onstop = (e) => {
                             console.log("recorder stopped");
+                            document.getElementById("audio-icon").src = "mic.svg"
                             const blob = new Blob(chunks, { type: "audio/ogg; codecs=opus" });
                             chunks = [];
                             console.log(blob);
@@ -158,6 +161,10 @@
                                             .then(facts => {
                                                 document.getElementById("facts").innerHTML = `<div class="col-span-12 bg-slate-200 rounded-3xl p-5 m-2">
                                                     <p class="text-5xl">${facts}</p>
+                                                    <audio controls autoplay>
+                                                    <source src="${URL}/audio?text=${facts}" type="audio/wav">
+                                                    Your browser does not support the audio element.
+                                                    </audio>
                                                 </div>`
                                             })
                                     }
@@ -246,30 +253,9 @@ Transcript goes here.
                     4
                 </span>
                 <p class="my-auto ml-5 inline-block text-5xl">
-                    Keywords
+                    Keywords Identified
                 </p>
                 <div class="flex col-span-12 mt-10 row flex-wrap" id="keywords">
-                    <span class="col-span-3 bg-slate-200 rounded-3xl p-5 m-2">
-                            <p class="text-5xl">Text</p>
-                    </span>
-                    <span class="col-span-3 bg-slate-200 rounded-3xl p-5 m-2">
-                            <p class="text-5xl">Text</p>
-                    </span>
-                    <span class="col-span-3 bg-slate-200 rounded-3xl p-5 m-2">
-                            <p class="text-5xl">Text</p>
-                    </span>
-                    <span class="col-span-3 bg-slate-200 rounded-3xl p-5 m-2">
-                            <p class="text-5xl">Text</p>
-                    </span>
-                    <span class="col-span-3 bg-slate-200 rounded-3xl p-5 m-2">
-                            <p class="text-5xl">Text</p>
-                    </span>
-                    <span class="col-span-3 bg-slate-200 rounded-3xl p-5 m-2">
-                            <p class="text-5xl">Text</p>
-                    </span>
-                    <span class="col-span-3 bg-slate-200 rounded-3xl p-5 m-2">
-                            <p class="text-5xl">Text</p>
-                    </span>
                 </div>
             </div>
             <hr class="w-[95%] h-3 my-4 bg-gray-200 rounded my-10 mx-auto">
@@ -278,15 +264,9 @@ Transcript goes here.
                     5
                 </span>
                 <p class="my-auto ml-5 inline-block text-5xl">
-                    Facts
+                    Trivia
                 </p>
                 <div class="flex flex-col col-span-12 mt-10" id="facts">
-                    <div class="col-span-12 bg-slate-200 rounded-3xl p-5 m-2">
-                            <p class="text-5xl">Text jkldsfjlk dsjsjl dskjfklsdj lkfd kdjflks djflsdkjf</p>
-                    </div>
-                    <div class="col-span-12 bg-slate-200 rounded-3xl p-5 m-2">
-                            <p class="text-5xl">Text</p>
-                    </div>
                 </div>
             </div>
         </div>

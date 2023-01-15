@@ -5,6 +5,8 @@ from gtts import gTTS
 from pydub import AudioSegment
 from keybert import KeyBERT
 from algorithm.web_scrape import process_keywords
+from pydub import effects
+import wave
 
 # Initiate Flask App
 app = Flask(__name__)
@@ -53,7 +55,7 @@ def keywords():
     kw_model = KeyBERT()
 
     res = kw_model.extract_keywords(
-        text, keyphrase_ngram_range=(1, 2), stop_words=None)
+        text, )#keyphrase_ngram_range=(1, 2), stop_words=None)
 
     print(res)
 
@@ -71,6 +73,30 @@ def facts():
     keywords = [i.strip() for i in request.args.get("keywords").split(",")]
     text = process_keywords(keywords)
     res = jsonify(text)
+    res.headers.add('Access-Control-Allow-Origin', '*')
+    return res
+
+
+@app.route("/audio", methods=["GET"])
+def getAudio():
+    myobj = gTTS(text=request.args.get("text"), lang="en", slow=False)
+
+    myobj.save("temp.mp3")
+
+    sound = AudioSegment.from_mp3("temp.mp3")
+
+    sound = sound.speedup(1.75, 150, 25)
+    
+    sound.export("temp.wav", format="wav")
+
+    def generate():
+        with open("temp.wav", "rb") as fwav:
+            data = fwav.read(1024)
+            while data:
+                yield data
+                data = fwav.read(1024)
+
+    res = Response(generate(), mimetype="audio/x-wav")
     res.headers.add('Access-Control-Allow-Origin', '*')
     return res
     
