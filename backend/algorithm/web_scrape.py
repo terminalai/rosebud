@@ -1,5 +1,11 @@
 import re
 import requests
+import random
+
+import sumy
+from sumy.summarizers.lsa import LsaSummarizer
+from sumy.nlp.tokenizers import Tokenizer
+from sumy.parsers.plaintext import PlaintextParser
 
 from nltk.corpus import stopwords
 from nltk.stem.porter import PorterStemmer
@@ -25,11 +31,14 @@ def get_body_text(url):
     html = re.sub("<footer.*?>(.*?)</footer>", "", html)
     html = re.sub("<style.*?>(.*?)</style>", "", html)
     html = re.sub("<noscript.*?>(.*?)</noscript>", "", html)
-    text = [re.sub("<.*?>|&#?[0-9a-zA-Z]+;", "", x) for x in re.findall("<p.*?>(.*?)</p>", html)]
+    # html = re.sub("<href.*?>(.*?)</href>", "", html)
+    html = re.sub("<a.*?>(.*?)</a>", "", html)
+    text = [re.sub("<.*?>|&#?[0-9a-zA-Z]+;", "", x).replace("Read more", "") for x in re.findall("<p.*?>(.*?)</p>", html)]
 
     return " ".join(text)
 
 def summarizer(text, keywords):
+    """
     stop_words = set(stopwords.words("english"))
     all_words = word_tokenize(text)
     all_words = [PorterStemmer().stem(word) for word in all_words]
@@ -58,7 +67,7 @@ def summarizer(text, keywords):
 
         for keyword in keywords:
             if PorterStemmer().stem(keyword) in sentence:
-                sentence_value[sentence] += 2
+                sentence_value[sentence] += 1000
 
     for sentence in sentence_value:
         sentence_value[sentence] = sentence_value[sentence] / len(sentence) # + 0.0001 * len(sentence)
@@ -85,28 +94,37 @@ def summarizer(text, keywords):
         closest = min(dist, closest)
         if closest == dist: compactness2 = compactness/10
 
-    summary = []
+    summary = [[]]
     continuous = True
     for sentence in sentences:
         if sentence in sentence_value and sentence_value[sentence] > (compactness2 * average):
-            if continuous: summary.append(sentence)
+            if continuous: summary[-1].append(sentence)
             else: summary.append([sentence])
             continuous = True
         else:
             continuous = False
 
-    return "".join(sorted(summary, key=lambda x: sum([len(y) for y in x]))[-1])
+    return " ".join(sorted(summary, key=lambda x: sum([len(y) for y in x]))[-random.randint(1, 5)])
+    """
+
+    parser = PlaintextParser.from_string(text, Tokenizer('english'))
+
+    lsa_summarizer = LsaSummarizer()
+    lsa_summary = lsa_summarizer(parser.document, 3)
+    return " ".join([str(x) for x in lsa_summary])
 
 
 def process_keywords(keywords):
     texts = []
-    for url in search_google(keywords)[:3]:
+    for url in search_google(keywords)[:4]:
         try:
             texts.append(get_body_text(url))
         except requests.exceptions.ConnectionError:
             continue
 
-    return summarizer("\n\n".join(texts), keywords)
+    try:
+        return summarizer("\n\n".join(texts), keywords)
+    except ZeroDivisionError: return "No results found."
 
 if __name__ == "__main__":
-    print(process_keywords(["donald", "trump", "populism"]))
+    print(process_keywords(["ghibli", "disney"]))
