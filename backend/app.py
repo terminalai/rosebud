@@ -85,7 +85,7 @@ def getAudio():
 
     sound = AudioSegment.from_mp3("temp.mp3")
 
-    sound = sound.speedup(1.75, 150, 25)
+    sound = sound.speedup(1.5, 150, 25)
     
     sound.export("temp.wav", format="wav")
 
