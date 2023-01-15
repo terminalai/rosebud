@@ -106,7 +106,9 @@ def process_keywords(keywords):
         except requests.exceptions.ConnectionError:
             continue
 
-    return summarizer("\n\n".join(texts), keywords)
+    try:
+        return summarizer("\n\n".join(texts), keywords)
+    except ZeroDivisionError: return "No results found."
 
 if __name__ == "__main__":
     print(process_keywords(["donald", "trump", "populism"]))
